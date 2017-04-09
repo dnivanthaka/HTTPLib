@@ -14,6 +14,11 @@ HTTPResponse::HTTPResponse()
 HTTPResponse::~HTTPResponse()
 {
     this->flush();
+
+    // To prevent browser from returning error 500 for empty responses
+    if(!m_HeaderSent){
+        std::cout << "Content-Type: text/plain\n\n"; 
+    }
 }
 
 void HTTPResponse::redirect(std::string url)
@@ -23,6 +28,7 @@ void HTTPResponse::redirect(std::string url)
         return;
    }
     std::cout << "Location: " << url << "\n\n";
+    m_HeaderSent = true;
 }
 
 void HTTPResponse::flush()
