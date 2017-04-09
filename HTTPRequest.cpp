@@ -4,7 +4,9 @@
 #include <vector>
 #include <map>
 
-#include "HTTPRequest.h"
+#include "HTTPLib.h"
+
+namespace HttpLib{
 
 HTTPRequest::HTTPRequest()
 {
@@ -20,6 +22,9 @@ HTTPRequest::HTTPRequest()
     m_HttpAccept     = (getenv("HTTP_ACCEPT") != NULL)?getenv("HTTP_ACCEPT"):"";
     //std::string c("REQUEST");
     if(m_RequestMethod.compare("GET") == 0){
+        this->mParseQueryString();
+    }else if(m_RequestMethod.compare("POST") == 0){
+        std::cin >> m_QueryString;
         this->mParseQueryString();
     } 
 }
@@ -37,21 +42,41 @@ void HTTPRequest::mParseQueryString()
 
     while((end_pos = m_QueryString.find('&', start_pos)) != std::string::npos){
         param = m_QueryString.substr(start_pos, (end_pos - start_pos));
-        std::cout << param << std::endl;
+        //std::cout << param << std::endl;
         start_pos = end_pos + 1;
-        std::vector<std::string> list = this->mDecodeValuePair(param);
-        std::cout << list[0] << std::endl;
-        std::cout << list[1] << std::endl;
+        std::vector<std::string> list = this->mGetValuePair(param);
+        //std::cout << list[0] << std::endl;
+        //std::cout << list[1] << std::endl;
         pairs.insert(std::pair<std::string, std::string>(list[0], list[1]));
     }
 
     //reading the ending segment
     if(m_QueryString.size() > start_pos){
-        std::cout << m_QueryString.substr(start_pos) << std::endl;
+        //std::cout << m_QueryString.substr(start_pos) << std::endl;
+        param = m_QueryString.substr(start_pos);
+        std::vector<std::string> list = this->mGetValuePair(param);
+        pairs.insert(std::pair<std::string, std::string>(list[0], list[1]));
     }
 }
 
-std::vector<std::string> HTTPRequest::mDecodeValuePair(std::string str)
+std::string HTTPRequest::getParameter(std::string key)
+{
+    std::map<std::string, std::string>::iterator it;
+
+    it = pairs.find(key);
+    if(it != pairs.end())
+        return it->second;
+
+    return "";
+}
+
+std::string HTTPRequest::mDecodeHtml(std::string str)
+{
+    //TODO implement functionality
+    return str;
+}
+
+std::vector<std::string> HTTPRequest::mGetValuePair(std::string str)
 {
     std::vector<std::string> pair;
     std::string::size_type pos = 0;
@@ -63,6 +88,8 @@ std::vector<std::string> HTTPRequest::mDecodeValuePair(std::string str)
         value = str.substr(pos + 1);
     }
     // Decode html entities here
+    key   = this->mDecodeHtml(key);
+    value = this->mDecodeHtml(value);
 
     pair.push_back(key);
     pair.push_back(value);
@@ -81,11 +108,5 @@ std::string HTTPRequest::getContentLength(){return m_ContentLength;}
 std::string HTTPRequest::getHTTPUserAgent(){return m_HttpUserAgent;}
 std::string HTTPRequest::getHttpAccept(){return m_HttpAccept;}
 
-int main(void)
-{
-    std::cout << "Content-Type: text/plain\n\n";
-    HTTPRequest *http = new HTTPRequest();
-    std::cout << http->getRequestMethod() << std::endl;
-    
-    return 0;
-}
+};
+
