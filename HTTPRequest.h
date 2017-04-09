@@ -22,11 +22,9 @@ private:
     std::string m_RequestMethod, m_PathInfo, m_PathTranslated, m_ScriptName, 
     m_QueryString, m_RemoteHost, m_ContentType, m_ContentLength, m_HttpUserAgent, m_HttpAccept;
     
-    //std::vector<std::string> m_GetReqKeys;
-    //std::vector<std::string> m_GetReqVals;
-    
-    //std::vector<std::string> m_PostReqKeys;
-   //std::vector<std::string> m_PostReqVals;
+    void mParseQueryString();
+    std::vector<std::string> mDecodeValuePair(std::string str);
+    std::map<std::string, std::string> pairs;
     
 };
 #endif

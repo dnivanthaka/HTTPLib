@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
+#include <vector>
+#include <map>
 
 #include "HTTPRequest.h"
 
@@ -17,13 +19,55 @@ HTTPRequest::HTTPRequest()
     m_HttpUserAgent  = (getenv("HTTP_USER_AGENT") != NULL)?getenv("HTTP_USER_AGENT"):"";
     m_HttpAccept     = (getenv("HTTP_ACCEPT") != NULL)?getenv("HTTP_ACCEPT"):"";
     //std::string c("REQUEST");
-    
+    if(m_RequestMethod.compare("GET") == 0){
+        this->mParseQueryString();
+    } 
 }
 
 HTTPRequest::~HTTPRequest()
 {
     
     
+}
+
+void HTTPRequest::mParseQueryString()
+{
+    std::string::size_type start_pos = 0, end_pos;
+    std::string param;
+
+    while((end_pos = m_QueryString.find('&', start_pos)) != std::string::npos){
+        param = m_QueryString.substr(start_pos, (end_pos - start_pos));
+        std::cout << param << std::endl;
+        start_pos = end_pos + 1;
+        std::vector<std::string> list = this->mDecodeValuePair(param);
+        std::cout << list[0] << std::endl;
+        std::cout << list[1] << std::endl;
+        pairs.insert(std::pair<std::string, std::string>(list[0], list[1]));
+    }
+
+    //reading the ending segment
+    if(m_QueryString.size() > start_pos){
+        std::cout << m_QueryString.substr(start_pos) << std::endl;
+    }
+}
+
+std::vector<std::string> HTTPRequest::mDecodeValuePair(std::string str)
+{
+    std::vector<std::string> pair;
+    std::string::size_type pos = 0;
+    std::string key, value;
+
+    pos = str.find('=', 0);
+    if(pos != std::string::npos){
+        key = str.substr(0, pos);
+        value = str.substr(pos + 1);
+    }
+    // Decode html entities here
+
+    pair.push_back(key);
+    pair.push_back(value);
+
+    return pair;
 }
 
 std::string HTTPRequest::getRequestMethod(){return m_RequestMethod;}
@@ -39,7 +83,9 @@ std::string HTTPRequest::getHttpAccept(){return m_HttpAccept;}
 
 int main(void)
 {
+    std::cout << "Content-Type: text/plain\n\n";
     HTTPRequest *http = new HTTPRequest();
+    std::cout << http->getRequestMethod() << std::endl;
     
     return 0;
 }
