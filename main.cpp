@@ -16,6 +16,9 @@ int main(void)
     //std::cout << http->getParameter("test") << std::endl;
     res->write(http->getRequestMethod());
     res->write(http->getParameter("test"));
+    //res->write("XXXXXXXXXXXXXX");
+    //res->redirect("http://www.google.com");
+    //res->flush();
     /*if(http->getRequestMethod().compare("POST") == 0){
         std::cin >> val;
         std::cout << val;

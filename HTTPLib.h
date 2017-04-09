@@ -12,10 +12,12 @@ namespace HttpLib{
             ~HTTPResponse();
             void setContentType(std::string str);
             void write(std::string str);
+            void redirect(std::string url);
+            void flush();
         private:
             std::string contentType;
             std::vector<std::string> response;
-            void m_SendOutput();
+            bool m_HeaderSent;
     };
     class HTTPRequest{
         public:

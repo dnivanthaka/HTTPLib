@@ -7,18 +7,41 @@ namespace HttpLib{
 HTTPResponse::HTTPResponse()
 {
     contentType = "text/plain";
+
+    m_HeaderSent = false;
 }
 
 HTTPResponse::~HTTPResponse()
 {
-    this->m_SendOutput();
+    this->flush();
 }
 
-void HTTPResponse::m_SendOutput()
+void HTTPResponse::redirect(std::string url)
 {
-    std::cout << "Content-Type: " << contentType << "\n\n"; 
-    for(std::vector<std::string>::iterator it = response.begin();it != response.end();++it){
-        std::cout << *it;
+    if(m_HeaderSent){
+        std::cout << "Headers already sent" << std::endl;
+        return;
+   }
+    std::cout << "Location: " << url << "\n\n";
+}
+
+void HTTPResponse::flush()
+{
+    if(response.size() > 0){
+
+        if(m_HeaderSent){
+            std::cout << "Headers already sent" << std::endl;
+            return;
+        }
+
+        std::cout << "Content-Type: " << contentType << "\n\n"; 
+        for(std::vector<std::string>::iterator it = response.begin();it != response.end();++it){
+            std::cout << *it;
+        }
+
+        m_HeaderSent = true;
+
+        response.clear();
     }
 }
 

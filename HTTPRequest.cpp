@@ -73,6 +73,13 @@ std::string HTTPRequest::getParameter(std::string key)
 std::string HTTPRequest::mDecodeHtml(std::string str)
 {
     //TODO implement functionality
+    std::string::size_type pos;
+
+    pos = str.find("%20", 0);
+    if(pos != std::string::npos){
+        str.replace(pos, 3, " ");
+    }
+
     return str;
 }
 
