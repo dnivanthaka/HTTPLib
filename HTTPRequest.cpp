@@ -72,13 +72,21 @@ std::string HTTPRequest::getParameter(std::string key)
 
 std::string HTTPRequest::mDecodeHtml(std::string str)
 {
-    //TODO implement functionality
-    std::string::size_type pos;
-
-    pos = str.find("%20", 0);
-    if(pos != std::string::npos){
-        str.replace(pos, 3, " ");
+    //TODO add more chars
+    std::map<std::string, std::string> escape_chars;
+    escape_chars.insert(std::pair<std::string, std::string>("%20", " "));
+    
+    std::string::size_type start_pos = 0, end_pos;
+    
+    for(std::map<std::string, std::string>::iterator it = escape_chars.begin();it != escape_chars.end();++it){
+            while((end_pos = str.find(it->first, start_pos)) != std::string::npos){
+                str.replace(end_pos, 3, it->second);
+                start_pos = end_pos + 1;
+            }
     }
+    /*if(pos != std::string::npos){
+        str.replace(pos, 3, " ");
+    }*/
 
     return str;
 }
@@ -95,9 +103,11 @@ std::vector<std::string> HTTPRequest::mGetValuePair(std::string str)
         value = str.substr(pos + 1);
     }
     // Decode html entities here
-    key   = this->mDecodeHtml(key);
-    value = this->mDecodeHtml(value);
-
+    if(this->getRequestMethod().compare("GET") == 0){
+        key   = this->mDecodeHtml(key);
+        value = this->mDecodeHtml(value);
+    }
+    
     pair.push_back(key);
     pair.push_back(value);
 
