@@ -1,14 +1,17 @@
+// Compile as g++ submit.cpp -L ../../lib -lhttplib -o submit.cgi
 #include <iostream>
 #include <string>
 
 #include "../../include/HTTPLib.h"
 
+using namespace HttpLib;
+
 int main(void)
 {
-    HttpLib::HTTPRequest req;
-    HttpLib::HTTPResponse res;
+    HTTPRequest req;
+    HTTPResponse res;
 
-    res.setContentType("text/html");
+    res.setContentType(HTTPResponse::TYPE_HTML);
 
     res.write("<h3>Request Method " + req.getRequestMethod() + "</h3>");
     res.write("<h3>Hello ");

@@ -86,6 +86,14 @@ std::string HTTPRequest::mDecodeHtml(std::string str)
                 start_pos = end_pos + 1;
             }
     }*/
+    //Removing the '+' char
+    while((end_pos = str.find("+", start_pos)) != std::string::npos){
+        str.replace(end_pos, 1, " ");
+        start_pos = end_pos + 1;
+    }
+
+    start_pos = 0;
+
     while((end_pos = str.find("%", start_pos)) != std::string::npos){
         std::string segment = str.substr(end_pos + 1, 2);
         int entity = ::atoi(segment.c_str());
@@ -111,10 +119,10 @@ std::vector<std::string> HTTPRequest::mGetValuePair(std::string str)
         value = str.substr(pos + 1);
     }
     // Decode html entities here
-    if(this->getRequestMethod().compare("GET") == 0){
+    //if(this->getRequestMethod().compare("GET") == 0){
         key   = this->mDecodeHtml(key);
         value = this->mDecodeHtml(value);
-    }
+    //}
     
     pair.push_back(key);
     pair.push_back(value);

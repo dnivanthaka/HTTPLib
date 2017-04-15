@@ -15,6 +15,19 @@ namespace HttpLib{
             void header(std::string url);
             void redirect(std::string url);
             void flush();
+            static const std::string TYPE_HTML;
+            static const std::string TYPE_TEXT;
+            static const std::string TYPE_CSS;
+            static const std::string TYPE_JAVASCRIPT;
+            static const std::string TYPE_JSON;
+            static const std::string TYPE_ZIP;
+            static const std::string TYPE_PDF;
+            static const std::string TYPE_XML;
+            static const std::string TYPE_MPEG;
+            static const std::string TYPE_VORBIS;
+            static const std::string TYPE_PNG;
+            static const std::string TYPE_JPEG;
+            static const std::string TYPE_GIF;
         private:
             std::string contentType;
             std::vector<std::string> response;
