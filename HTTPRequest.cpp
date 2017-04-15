@@ -3,6 +3,7 @@
 #include <cstring>
 #include <vector>
 #include <map>
+#include <cstdio>
 //#include <sstream>
 
 #include "HTTPLib.h"
@@ -18,22 +19,62 @@ HTTPRequest::HTTPRequest()
     m_QueryString    = (getenv("QUERY_STRING") != NULL)?getenv("QUERY_STRING"):"";
     m_RemoteHost     = (getenv("REMOTE_HOST") != NULL)?getenv("REMOTE_HOST"):"";
     m_ContentType    = (getenv("CONTENT_TYPE") != NULL)?getenv("CONTENT_TYPE"):"";
-    m_ContentLength  = (getenv("CONTENT_LENGTH") != NULL)?getenv("CONTENT_LENGTH"):"";
+    m_ContentLength  = (getenv("CONTENT_LENGTH") != NULL)?getenv("CONTENT_LENGTH"):"0";
     m_HttpUserAgent  = (getenv("HTTP_USER_AGENT") != NULL)?getenv("HTTP_USER_AGENT"):"";
     m_HttpAccept     = (getenv("HTTP_ACCEPT") != NULL)?getenv("HTTP_ACCEPT"):"";
+    m_pMultipartData = NULL;
     //std::string c("REQUEST");
     if(m_RequestMethod.compare("GET") == 0){
         this->mParseQueryString();
     }else if(m_RequestMethod.compare("POST") == 0){
-        std::cin >> m_QueryString;
-        this->mParseQueryString();
+        if(m_ContentType.find("multipart/form-data") == std::string::npos){
+            std::cin >> m_QueryString;
+            this->mParseQueryString();
+        }else{
+            //Multipart form submission
+            //TODO Error checking
+            int len = ::atoi(m_ContentLength.c_str());
+            m_pMultipartData = (char *)malloc(sizeof(char) * len);
+            ::fread(m_pMultipartData, sizeof(char), len, stdin);
+            std::cout << "Content-Type: text/plain\r\n\r\n";
+            std::cout << m_pMultipartData << std::endl;
+            int bpos = m_ContentType.find("boundary=");
+            this->mParseMultipartData(m_ContentType.substr(bpos + 9));
+        }
+        /*int len = ::atoi(m_ContentLength.c_str());
+        char buff[len];
+        ::fread(buff, len, 1, stdin);
+        std::cout << "Content-Type: text/plain\r\n\r\n";
+        std::cout << buff << std::endl;*/
     } 
 }
 
 HTTPRequest::~HTTPRequest()
 {
+   if(m_pMultipartData != NULL){
+    ::free(m_pMultipartData);
+   } 
     
-    
+}
+
+void HTTPRequest::mParseMultipartData(std::string boundary)
+{
+    std::string::size_type start_pos = 0, end_pos;
+    std::string param;
+    //std::cout << boundary << "\n\n";
+
+    /*while((end_pos = m_pMultipartData.find(boundary, start_pos)) != std::string::npos){
+        param = m_pMultipartData.substr(start_pos, boundary.length() + (end_pos - start_pos));
+        start_pos = end_pos + 1;
+        std::cout << param;
+    }
+
+    //reading the ending segment
+    if(m_pMultipartData.size() > start_pos){
+        //std::cout << m_QueryString.substr(start_pos) << std::endl;
+        param = m_pMultipartData.substr(boundary.length() + start_pos);
+        std::cout << param;
+    }*/
 }
 
 void HTTPRequest::mParseQueryString()

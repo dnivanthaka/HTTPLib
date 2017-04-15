@@ -3,6 +3,8 @@
 
 #include "HTTPLib.h"
 
+#define ENDLINE "\r\n\r\n"
+
 namespace HttpLib{
 
 const std::string HTTPResponse::TYPE_HTML       = "text/html";
@@ -32,7 +34,7 @@ HTTPResponse::~HTTPResponse()
 
     // To prevent browser from returning error 500 for empty responses
     if(!m_HeaderSent){
-        std::cout << TYPE_TEXT << "\n\n"; 
+        std::cout << TYPE_TEXT << ENDLINE; 
     }
 }
 
@@ -42,7 +44,7 @@ void HTTPResponse::header(std::string str)
         std::cout << "Headers already sent" << std::endl;
         return;
    }
-    std::cout << str << "\n\n";
+    std::cout << str << ENDLINE;
     m_HeaderSent = true;
 }
 
@@ -52,7 +54,7 @@ void HTTPResponse::redirect(std::string url)
         std::cout << "Headers already sent" << std::endl;
         return;
    }
-    std::cout << "Location: " << url << "\n\n";
+    std::cout << "Location: " << url << ENDLINE;
     m_HeaderSent = true;
 }
 
@@ -65,7 +67,7 @@ void HTTPResponse::flush()
             return;
         }
 
-        std::cout << "Content-Type: " << contentType << "\n\n"; 
+        std::cout << "Content-Type: " << contentType << ENDLINE; 
         for(std::vector<std::string>::iterator it = response.begin();it != response.end();++it){
             std::cout << *it;
         }
