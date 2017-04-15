@@ -21,6 +21,16 @@ HTTPResponse::~HTTPResponse()
     }
 }
 
+void HTTPResponse::header(std::string str)
+{
+    if(m_HeaderSent){
+        std::cout << "Headers already sent" << std::endl;
+        return;
+   }
+    std::cout << str << "\n\n";
+    m_HeaderSent = true;
+}
+
 void HTTPResponse::redirect(std::string url)
 {
     if(m_HeaderSent){

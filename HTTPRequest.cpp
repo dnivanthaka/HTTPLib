@@ -3,6 +3,7 @@
 #include <cstring>
 #include <vector>
 #include <map>
+//#include <sstream>
 
 #include "HTTPLib.h"
 
@@ -72,21 +73,28 @@ std::string HTTPRequest::getParameter(std::string key)
 
 std::string HTTPRequest::mDecodeHtml(std::string str)
 {
-    //TODO add more chars
-    std::map<std::string, std::string> escape_chars;
-    escape_chars.insert(std::pair<std::string, std::string>("%20", " "));
+    std::string entity_chars[] = {" ", "!", "\"", "#", 
+                                  "$", "%", "&", "'", 
+                                  "(", ")", "*", "+", 
+                                  ",", "-", ".", "/"};
     
     std::string::size_type start_pos = 0, end_pos;
     
-    for(std::map<std::string, std::string>::iterator it = escape_chars.begin();it != escape_chars.end();++it){
+    /*for(std::map<std::string, std::string>::iterator it = escape_chars.begin();it != escape_chars.end();++it){
             while((end_pos = str.find(it->first, start_pos)) != std::string::npos){
                 str.replace(end_pos, 3, it->second);
                 start_pos = end_pos + 1;
             }
-    }
-    /*if(pos != std::string::npos){
-        str.replace(pos, 3, " ");
     }*/
+    while((end_pos = str.find("%", start_pos)) != std::string::npos){
+        std::string segment = str.substr(end_pos + 1, 2);
+        int entity = ::atoi(segment.c_str());
+        /*std::stringstream ss;
+        ss << entity_chars[entity - 20];
+        str.replace(end_pos, 3, ss.str());*/
+        str.replace(end_pos, 3, entity_chars[entity - 20]);
+        start_pos = end_pos + 1;
+    }
 
     return str;
 }
