@@ -44,13 +44,15 @@ HTTPRequest::HTTPRequest()
             int len = ::atoi(m_ContentLength.c_str());
             m_pMultipartData = (char *)malloc(sizeof(char) * len);
             ::fread(m_pMultipartData, sizeof(char), len, stdin);
+            //fflush(stdin);
             std::cout << "Content-Type: text/plain\r\n\r\n";
-            //std::cout << m_pMultipartData << std::endl;
+            std::cout << m_pMultipartData << std::endl;
+            std::cout << "DATALEN" << strlen(m_pMultipartData) << std::endl;
             int bpos = m_ContentType.find(m_MultipartBoundaryStart);
             m_MultipartBoundary = m_ContentType.substr(bpos + m_MultipartBoundaryStart.length());
             //multipart/form-data; boundary=---------------------------1902646541629952042542318893
             //-----------------------------1902646541629952042542318893
-            this->mParseMultipartData();
+            mParseMultipartData();
         }
         /*int len = ::atoi(m_ContentLength.c_str());
         char buff[len];
@@ -73,9 +75,20 @@ void HTTPRequest::mParseMultipartData()
     std::string::size_type start_pos = 0, end_pos;
     std::string param;
     char *token;
+    unsigned int start = 0;
     
-    token = strtok(m_pMultipartData, m_MultipartBoundary.c_str());
-    std::cout << "TOKEN " << token << "ENDTOKEN";
+    std::cout << "---------------------------------- <br />";
+    std::cout << "TOKEN LEN " << m_MultipartBoundary.length() << "ENDL " << m_MultipartBoundary << std::endl;
+    
+    while((token = strstr(&m_pMultipartData[start], m_MultipartBoundary.c_str())) != NULL){
+        std::cout << "TOKEN " << token << "ENDTOKEN";
+        
+        start += m_MultipartBoundary.length();
+        //Split data into new lines until the boundary is reached
+    }
+    
+    std::cout << m_pMultipartData << std::endl;
+    std::cout << "DATALEN" << strlen(m_pMultipartData) << std::endl;
     //std::cout << boundary << "\n\n";
 
     /*while((end_pos = m_pMultipartData.find(boundary, start_pos)) != std::string::npos){
