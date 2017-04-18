@@ -10,8 +10,13 @@
 
 namespace HttpLib{
 
+const std::string HTTPRequest::m_MultipartMime          = "multipart/form-data";
+const std::string HTTPRequest::m_MultipartBoundaryStart = "boundary=";
+
 HTTPRequest::HTTPRequest()
 {
+    
+
     m_RequestMethod  = (getenv("REQUEST_METHOD") != NULL)?getenv("REQUEST_METHOD"):"";
     m_PathInfo       = (getenv("PATH_INFO") != NULL)?getenv("PATH_INFO"):"";
     m_PathTranslated = (getenv("PATH_TRANSLATED") != NULL)?getenv("PATH_TRANSLATED"):"";
@@ -22,24 +27,30 @@ HTTPRequest::HTTPRequest()
     m_ContentLength  = (getenv("CONTENT_LENGTH") != NULL)?getenv("CONTENT_LENGTH"):"0";
     m_HttpUserAgent  = (getenv("HTTP_USER_AGENT") != NULL)?getenv("HTTP_USER_AGENT"):"";
     m_HttpAccept     = (getenv("HTTP_ACCEPT") != NULL)?getenv("HTTP_ACCEPT"):"";
+    
     m_pMultipartData = NULL;
+    m_isMultipart    = false;
     //std::string c("REQUEST");
     if(m_RequestMethod.compare("GET") == 0){
         this->mParseQueryString();
     }else if(m_RequestMethod.compare("POST") == 0){
-        if(m_ContentType.find("multipart/form-data") == std::string::npos){
+        if(m_ContentType.find(m_MultipartMime) == std::string::npos){
             std::cin >> m_QueryString;
             this->mParseQueryString();
         }else{
             //Multipart form submission
             //TODO Error checking
+            m_isMultipart = true;
             int len = ::atoi(m_ContentLength.c_str());
             m_pMultipartData = (char *)malloc(sizeof(char) * len);
             ::fread(m_pMultipartData, sizeof(char), len, stdin);
             std::cout << "Content-Type: text/plain\r\n\r\n";
-            std::cout << m_pMultipartData << std::endl;
-            int bpos = m_ContentType.find("boundary=");
-            this->mParseMultipartData(m_ContentType.substr(bpos + 9));
+            //std::cout << m_pMultipartData << std::endl;
+            int bpos = m_ContentType.find(m_MultipartBoundaryStart);
+            m_MultipartBoundary = m_ContentType.substr(bpos + m_MultipartBoundaryStart.length());
+            //multipart/form-data; boundary=---------------------------1902646541629952042542318893
+            //-----------------------------1902646541629952042542318893
+            this->mParseMultipartData();
         }
         /*int len = ::atoi(m_ContentLength.c_str());
         char buff[len];
@@ -51,16 +62,20 @@ HTTPRequest::HTTPRequest()
 
 HTTPRequest::~HTTPRequest()
 {
-   if(m_pMultipartData != NULL){
+   if(m_isMultipart){
     ::free(m_pMultipartData);
    } 
     
 }
 
-void HTTPRequest::mParseMultipartData(std::string boundary)
+void HTTPRequest::mParseMultipartData()
 {
     std::string::size_type start_pos = 0, end_pos;
     std::string param;
+    char *token;
+    
+    token = strtok(m_pMultipartData, m_MultipartBoundary.c_str());
+    std::cout << "TOKEN " << token << "ENDTOKEN";
     //std::cout << boundary << "\n\n";
 
     /*while((end_pos = m_pMultipartData.find(boundary, start_pos)) != std::string::npos){

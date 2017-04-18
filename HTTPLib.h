@@ -55,11 +55,16 @@ namespace HttpLib{
             m_QueryString, m_RemoteHost, m_ContentType, m_ContentLength, m_HttpUserAgent, m_HttpAccept;
             
             void mParseQueryString();
-            void mParseMultipartData(std::string boundary);
+            void mParseMultipartData();
             std::vector<std::string> mGetValuePair(std::string str);
             std::string mDecodeHtml(std::string str);
             std::map<std::string, std::string> pairs;
             char *m_pMultipartData;
+            bool m_isMultipart;
+            std::string m_MultipartBoundary;
+            
+            static const std::string m_MultipartMime;
+            static const std::string m_MultipartBoundaryStart;
             
         };
 };
